@@ -1,25 +1,21 @@
-import type {
-  SkiaMutableValue,
-  SkMatrix,
-  SkRect,
-  Skia,
-} from "@shopify/react-native-skia";
+import type { SkRect } from "@shopify/react-native-skia";
 import React from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   SharedValue,
   runOnJS,
   useAnimatedStyle,
-  useSharedValue,
 } from "react-native-reanimated";
 
 interface GestureHandlerProps {
   dimensions: SkRect;
   onSelect: () => void;
-  scale: SharedValue<number>;
+  canvasScale: SharedValue<number>;
   selected: boolean;
   x: SharedValue<number>;
   y: SharedValue<number>;
+  rotation: SharedValue<number>;
+  scale: SharedValue<number>;
 }
 
 const OUTLINE_WIDTH = 3;
@@ -27,10 +23,12 @@ const OUTLINE_WIDTH = 3;
 export const GestureHandler = ({
   dimensions,
   onSelect,
-  scale,
+  canvasScale,
   selected,
   x,
   y,
+  rotation,
+  scale,
 }: GestureHandlerProps) => {
   const tap = Gesture.Tap().onStart(() => {
     runOnJS(onSelect)();
@@ -41,17 +39,13 @@ export const GestureHandler = ({
       runOnJS(onSelect)();
     })
     .onChange((e) => {
-      x.value = x.value + e.changeX / scale.value;
-      y.value = y.value + e.changeY / scale.value;
+      x.value = x.value + e.changeX / canvasScale.value;
+      y.value = y.value + e.changeY / canvasScale.value;
     });
 
   const pinch = Gesture.Pinch()
     .onUpdate((e) => {
-      // state.modify((value) => {
-      //   "worklet";
-      //   value[id].scale = value[id].savedScale * e.scale;
-      //   return value;
-      // });
+      scale.value = e.scale;
     })
     .onEnd(() => {
       // state.modify((value) => {
@@ -62,19 +56,11 @@ export const GestureHandler = ({
     });
 
   const rotate = Gesture.Rotation()
-    .onChange((e) => {
-      // state.modify((value) => {
-      //   "worklet";
-      //   value[id].rotation = value[id].savedRotation + e.rotation;
-      //   return value;
-      // });
+    .onUpdate((e) => {
+      rotation.value = e.rotation;
     })
     .onEnd(() => {
-      // state.modify((value) => {
-      //   "worklet";
-      //   value[id].savedRotation = value[id].rotation;
-      //   return value;
-      // });
+      // savedRotation.value = rotation.value;
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -92,8 +78,8 @@ export const GestureHandler = ({
       {
         translateY: y.value,
       },
-      // { scale: state.value[id].scale },
-      // { rotateZ: `${(rotation.value / Math.PI) * 180}deg` },
+      { scale: scale.value },
+      { rotateZ: `${(rotation.value / Math.PI) * 180}deg` },
     ],
   }));
 

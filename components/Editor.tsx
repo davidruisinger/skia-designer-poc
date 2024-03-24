@@ -8,6 +8,7 @@ import {
   Skia,
   rect,
   Canvas,
+  Group,
 } from "@shopify/react-native-skia";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -18,43 +19,56 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { GestureHandler } from "./GestureHandler";
+import { Element, ElementProps } from "./Element";
 import sfMono from "../assets/fonts/SF-Mono-Medium.otf";
 
 const DEFAULT_WIDTH = 1024;
 const DEFAULT_HEIGHT = 1024;
 
-const elements = [
+const elements: ElementProps[] = [
   {
     id: "1",
     type: "Circle",
-    r: 100,
+    width: 200,
+    height: 200,
     color: "plum",
     x: makeMutable(700),
     y: makeMutable(700),
+    rotation: makeMutable(0),
+    scale: makeMutable(1),
   },
   {
     id: "2",
     type: "Rect",
-    r: 400,
+    width: 400,
+    height: 400,
     color: "khaki",
     x: makeMutable(120),
     y: makeMutable(200),
+    rotation: makeMutable(0),
+    scale: makeMutable(1),
   },
   {
     id: "3",
     type: "Text",
-    r: 400,
+    width: 400,
+    height: 100,
     color: "khaki",
     x: makeMutable(100),
     y: makeMutable(100),
+    rotation: makeMutable(0),
+    scale: makeMutable(1),
   },
   {
     id: "4",
     type: "TextPath",
-    r: 400,
+    width: 180,
+    height: 120,
     color: "khaki",
     x: makeMutable(600),
     y: makeMutable(300),
+    rotation: makeMutable(0),
+    scale: makeMutable(1),
   },
 ];
 
@@ -108,90 +122,28 @@ export const Editor = () => {
               backgroundColor: "white",
             }}
           >
-            {elements.map((element) => {
-              if (element.type === "Circle") {
-                return (
-                  <Circle
-                    key={element.id}
-                    cx={element.x}
-                    cy={element.y}
-                    r={element.r}
-                    color={element.color}
-                  />
-                );
-              }
-
-              if (element.type === "Rect") {
-                return (
-                  <Rect
-                    key={element.id}
-                    x={element.x}
-                    y={element.y}
-                    width={element.r}
-                    height={element.r}
-                    color={element.color}
-                  />
-                );
-              }
-
-              if (element.type === "Text") {
-                return (
-                  <Text
-                    font={font}
-                    x={element.x}
-                    y={element.y}
-                    strokeWidth={2}
-                    color="#8E8E93"
-                    text="Hello World!"
-                  />
-                );
-              }
-
-              if (element.type === "TextPath") {
-                const path = Skia.Path.Make();
-
-                path.addArc(
-                  rect(element.x.value, element.y.value, 254.457273, 120),
-                  180,
-                  180
-                );
-                return (
-                  <TextPath
-                    font={font}
-                    path={path}
-                    text="This is a sample paragraph. Use it to add"
-                  />
-                );
-              }
-
-              return null;
-            })}
+            {elements.map((element) => (
+              <Element element={element} font={font} />
+            ))}
           </Canvas>
           {elements.map((element) => (
             <GestureHandler
               x={element.x}
               y={element.y}
-              scale={scale}
+              canvasScale={scale}
               key={element.id}
               selected={selectedId === element.id}
               onSelect={() => {
                 setIsSelectedId(element.id);
               }}
-              dimensions={
-                element.type === "Circle"
-                  ? {
-                      height: 200,
-                      width: 200,
-                      x: -100,
-                      y: -100,
-                    }
-                  : {
-                      height: 400,
-                      width: 400,
-                      x: 0,
-                      y: 0,
-                    }
-              }
+              scale={element.scale}
+              rotation={element.rotation}
+              dimensions={{
+                x: element.type === "Circle" ? -element.width / 2 : 0,
+                y: element.type === "Circle" ? -element.height / 2 : 0,
+                width: element.width,
+                height: element.height,
+              }}
             />
           ))}
         </Animated.View>
