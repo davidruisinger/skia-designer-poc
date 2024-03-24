@@ -1,9 +1,19 @@
 import React from "react";
-import { Circle, Rect } from "@shopify/react-native-skia";
+import {
+  Circle,
+  Rect,
+  Text,
+  useFont,
+  TextPath,
+  Skia,
+  rect,
+} from "@shopify/react-native-skia";
 
 import { makeMutable } from "react-native-reanimated";
 import { GestureHandler } from "./GestureHandler";
 import { Canvas } from "./Canvas";
+
+import sfMono from "../assets/fonts/SF-Mono-Medium.otf";
 
 const elements = [
   {
@@ -11,21 +21,39 @@ const elements = [
     type: "Circle",
     r: 100,
     color: "plum",
-    x: makeMutable(600),
-    y: makeMutable(600),
+    x: makeMutable(700),
+    y: makeMutable(700),
   },
   {
     id: "2",
     type: "Rect",
     r: 400,
     color: "khaki",
+    x: makeMutable(120),
+    y: makeMutable(200),
+  },
+  {
+    id: "3",
+    type: "Text",
+    r: 400,
+    color: "khaki",
     x: makeMutable(100),
     y: makeMutable(100),
+  },
+  {
+    id: "4",
+    type: "TextPath",
+    r: 400,
+    color: "khaki",
+    x: makeMutable(600),
+    y: makeMutable(300),
   },
 ];
 
 export const Editor = () => {
   const [selectedId, setIsSelectedId] = React.useState<string | null>(null);
+
+  const font = useFont(sfMono, 32);
 
   return (
     <Canvas
@@ -70,6 +98,7 @@ export const Editor = () => {
             />
           );
         }
+
         if (element.type === "Rect") {
           return (
             <Rect
@@ -82,7 +111,42 @@ export const Editor = () => {
             />
           );
         }
+
+        if (element.type === "Text") {
+          return (
+            <Text
+              font={font}
+              x={element.x}
+              y={element.y}
+              strokeWidth={2}
+              color="#8E8E93"
+              text="Hello World!"
+            />
+          );
+        }
+
+        if (element.type === "TextPath") {
+          const path = Skia.Path.Make();
+
+          path.addArc(
+            rect(element.x.value, element.y.value, 254.457273, 120),
+            180,
+            180
+          );
+          return (
+            <TextPath
+              font={font}
+              path={path}
+              text="This is a sample paragraph. Use it to add"
+            />
+          );
+        }
+
+        return null;
       })}
     </Canvas>
   );
 };
+
+// Export Editor as default, we can lazy-load this way easier.
+export default Editor;
