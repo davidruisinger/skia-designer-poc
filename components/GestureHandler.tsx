@@ -15,19 +15,19 @@ import Animated, {
 
 interface GestureHandlerProps {
   dimensions: SkRect;
-  selected: boolean;
   onSelect: () => void;
+  scale: SharedValue<number>;
+  selected: boolean;
   x: SharedValue<number>;
   y: SharedValue<number>;
-  id: string;
 }
 
 const OUTLINE_WIDTH = 3;
 
 export const GestureHandler = ({
   dimensions,
-  id,
   onSelect,
+  scale,
   selected,
   x,
   y,
@@ -41,8 +41,8 @@ export const GestureHandler = ({
       runOnJS(onSelect)();
     })
     .onChange((e) => {
-      x.value = x.value + e.changeX; // TODO: Multiply by scale
-      y.value = y.value + e.changeY; // TODO: Multiply by scale
+      x.value = x.value + e.changeX / scale.value;
+      y.value = y.value + e.changeY / scale.value;
     });
 
   const pinch = Gesture.Pinch()
