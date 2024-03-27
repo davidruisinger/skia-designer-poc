@@ -126,7 +126,7 @@ export const Editor = () => {
             exiting={SlideOutRight}
             style={[styles.menu]}
           >
-            <RNText>Rotation: {selectedElementRotation}°</RNText>
+            <RNText>Rotation: {Math.floor(selectedElementRotation)}°</RNText>
             <Slider
               style={{ width: "100%", height: 40 }}
               minimumValue={0}
