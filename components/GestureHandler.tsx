@@ -1,4 +1,3 @@
-import type { SkRect } from "@shopify/react-native-skia";
 import React from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -6,85 +5,70 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { ElementProps, useElementContext } from "./ElementContext";
+import { toCSSMatrix, translate } from "./MatrixHelpers";
 
 interface GestureHandlerProps {
-  dimensions: SkRect;
-  onSelect: () => void;
+  element: ElementProps;
   canvasScale: SharedValue<number>;
-  selected: boolean;
-  x: SharedValue<number>;
-  y: SharedValue<number>;
-  rotation: SharedValue<number>;
-  scale: SharedValue<number>;
 }
 
 const OUTLINE_WIDTH = 3;
 
 export const GestureHandler = ({
-  dimensions,
-  onSelect,
+  element,
   canvasScale,
-  selected,
-  x,
-  y,
-  rotation,
-  scale,
 }: GestureHandlerProps) => {
+  const { selectElement, selectedElement } = useElementContext();
+
   const tap = Gesture.Tap().onStart(() => {
-    runOnJS(onSelect)();
+    runOnJS(selectElement)(element);
   });
 
   const pan = Gesture.Pan()
-    .onStart(() => {
-      runOnJS(onSelect)();
+    .onBegin(() => {
+      runOnJS(selectElement)(element);
     })
-    .onChange((e) => {
-      x.value = x.value + e.changeX / canvasScale.value;
-      y.value = y.value + e.changeY / canvasScale.value;
+    .onChange((event) => {
+      element.matrix.value = translate(
+        element.matrix.value,
+        event.changeX / canvasScale.value,
+        event.changeY / canvasScale.value
+      );
     });
 
-  const pinch = Gesture.Pinch()
-    .onUpdate((e) => {
-      scale.value = e.scale;
-    })
-    .onEnd(() => {
-      // state.modify((value) => {
-      //   "worklet";
-      //   value[id].savedScale = value[id].scale;
-      //   return value;
-      // });
-    });
-
-  const rotate = Gesture.Rotation()
-    .onUpdate((e) => {
-      rotation.value = e.rotation;
-    })
-    .onEnd(() => {
-      // savedRotation.value = rotation.value;
-    });
+  const isSelected = selectedElement?.id === element.id;
 
   const animatedStyle = useAnimatedStyle(() => ({
     position: "absolute",
-    left: dimensions.x - OUTLINE_WIDTH,
-    top: dimensions.y - OUTLINE_WIDTH,
-    width: dimensions.width + OUTLINE_WIDTH * 2,
-    height: dimensions.height + OUTLINE_WIDTH * 2,
-    borderColor: selected ? "blue" : "transparent",
+    width: element.size.width + OUTLINE_WIDTH * 4,
+    height: element.size.height + OUTLINE_WIDTH * 4,
+    top: -OUTLINE_WIDTH * 2,
+    left: -OUTLINE_WIDTH * 2,
     borderWidth: OUTLINE_WIDTH,
+    borderColor: isSelected ? "blue" : "transparent",
     transform: [
+      // NOTE: This is a workaround to make the element transform around its center (as Skia does)
+      // instead of the top-left corner (as React Native does).
       {
-        translateX: x.value,
+        translateX: -element.size.width / 2,
       },
       {
-        translateY: y.value,
+        translateY: -element.size.height / 2,
       },
-      { scale: scale.value },
-      { rotateZ: `${(rotation.value / Math.PI) * 180}deg` },
+      { matrix: toCSSMatrix(element.matrix.value) },
+      // Reset the translation to the top-left corner
+      {
+        translateX: element.size.width / 2,
+      },
+      {
+        translateY: element.size.height / 2,
+      },
     ],
   }));
 
   return (
-    <GestureDetector gesture={Gesture.Race(tap, pan, rotate, pinch)}>
+    <GestureDetector gesture={Gesture.Race(tap, pan)}>
       <Animated.View style={animatedStyle} />
     </GestureDetector>
   );

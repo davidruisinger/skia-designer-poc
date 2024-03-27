@@ -1,153 +1,210 @@
 import React from "react";
-import {
-  Circle,
-  Rect,
-  Text,
-  useFont,
-  TextPath,
-  Skia,
-  rect,
-  Canvas,
-  Group,
-} from "@shopify/react-native-skia";
-import { View } from "react-native";
+import { SkMatrix, Skia } from "@shopify/react-native-skia";
+import { StyleSheet, View, Text as RNText, Button } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  SlideInRight,
+  SlideOutRight,
   makeMutable,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { GestureHandler } from "./GestureHandler";
-import { Element, ElementProps } from "./Element";
-import sfMono from "../assets/fonts/SF-Mono-Medium.otf";
+import Slider from "@react-native-community/slider";
+import { ElementProps, useElementContext } from "./ElementContext";
+import cuid from "cuid";
+import { ArtBoard } from "./ArtBoard";
+import {
+  decomposeRotationRadians,
+  decomposeScale,
+  degreesToRadians,
+  radiansToDegrees,
+  rotate,
+  scale,
+} from "./MatrixHelpers";
 
-const DEFAULT_WIDTH = 1024;
-const DEFAULT_HEIGHT = 1024;
-
-const elements: ElementProps[] = [
-  {
-    id: "1",
-    type: "Circle",
-    width: 200,
-    height: 200,
-    color: "plum",
-    x: makeMutable(700),
-    y: makeMutable(700),
-    rotation: makeMutable(0),
-    scale: makeMutable(1),
+const styles = StyleSheet.create({
+  menu: {
+    width: "30%",
+    backgroundColor: "white",
+    position: "absolute",
+    right: 0,
+    top: 0,
+    height: "100%",
+    shadowColor: "00000",
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    shadowOffset: {
+      height: 2,
+      width: 2,
+    },
+    padding: 10,
   },
-  {
-    id: "2",
-    type: "Rect",
-    width: 400,
-    height: 400,
-    color: "khaki",
-    x: makeMutable(120),
-    y: makeMutable(200),
-    rotation: makeMutable(0),
-    scale: makeMutable(1),
-  },
-  {
-    id: "3",
-    type: "Text",
-    width: 400,
-    height: 100,
-    color: "khaki",
-    x: makeMutable(100),
-    y: makeMutable(100),
-    rotation: makeMutable(0),
-    scale: makeMutable(1),
-  },
-  {
-    id: "4",
-    type: "TextPath",
-    width: 180,
-    height: 120,
-    color: "khaki",
-    x: makeMutable(600),
-    y: makeMutable(300),
-    rotation: makeMutable(0),
-    scale: makeMutable(1),
-  },
-];
+});
 
 export const Editor = () => {
-  const [selectedId, setIsSelectedId] = React.useState<string | null>(null);
+  const { addElement, selectElement, selectedElement, removeElement } =
+    useElementContext();
+  const [origin, setOrigin] = React.useState<SkMatrix | null>(null);
 
-  const font = useFont(sfMono, 32);
-
-  const translateX = useSharedValue(-70);
-  const translateY = useSharedValue(0);
-  const scale = useSharedValue(0.7);
+  const canvasTranslateX = useSharedValue(-70);
+  const canvasTranslateY = useSharedValue(0);
+  const canvasScale = useSharedValue(0.7);
   const savedScale = useSharedValue(0.7);
 
   const tap = Gesture.Tap().onStart(() => {
-    runOnJS(setIsSelectedId)(null);
+    runOnJS(selectElement)(null);
   });
 
   const pan = Gesture.Pan().onChange((e) => {
-    translateX.value += e.changeX;
-    translateY.value += e.changeY;
+    canvasTranslateX.value += e.changeX;
+    canvasTranslateY.value += e.changeY;
   });
 
   const pinch = Gesture.Pinch()
     .onUpdate((e) => {
-      scale.value = savedScale.value * e.scale;
+      canvasScale.value = savedScale.value * e.scale;
     })
     .onEnd(() => {
-      savedScale.value = scale.value;
+      savedScale.value = canvasScale.value;
     });
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const animatedCanvasStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: translateX.value,
+        translateX: canvasTranslateX.value,
       },
       {
-        translateY: translateY.value,
+        translateY: canvasTranslateY.value,
       },
-      { scale: scale.value },
+      { scale: canvasScale.value },
     ],
   }));
 
   return (
     <GestureDetector gesture={Gesture.Race(pinch, pan, tap)}>
       <View style={{ flex: 1, backgroundColor: "lightgrey" }}>
-        <Animated.View style={[animatedStyle]}>
-          <Canvas
-            style={{
-              width: DEFAULT_WIDTH,
-              height: DEFAULT_HEIGHT,
-              backgroundColor: "white",
-            }}
+        <View style={{ flexDirection: "row", justifyContent: "center" }}>
+          <Button title="Add Rect" onPress={() => handleAddElement("Rect")} />
+          <Button
+            title="Add Circle"
+            onPress={() => handleAddElement("Circle")}
+          />
+          <Button title="Add Text" onPress={() => handleAddElement("Text")} />
+          <Button
+            title="Add TextPath"
+            onPress={() => handleAddElement("TextPath")}
+          />
+        </View>
+        <Animated.View style={[animatedCanvasStyle]}>
+          <ArtBoard canvasScale={canvasScale} />
+        </Animated.View>
+        {selectedElement && (
+          <Animated.View
+            entering={SlideInRight}
+            exiting={SlideOutRight}
+            style={[styles.menu]}
           >
-            {elements.map((element) => (
-              <Element element={element} font={font} />
-            ))}
-          </Canvas>
-          {elements.map((element) => (
-            <GestureHandler
-              x={element.x}
-              y={element.y}
-              canvasScale={scale}
-              key={element.id}
-              selected={selectedId === element.id}
-              onSelect={() => {
-                setIsSelectedId(element.id);
+            <RNText>
+              Rotation:{" "}
+              {radiansToDegrees(
+                decomposeRotationRadians(selectedElement.matrix.value)
+              )}
+              °
+            </RNText>
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={0}
+              maximumValue={360}
+              minimumTrackTintColor="lightgrey"
+              maximumTrackTintColor="black"
+              onValueChange={(value) => {
+                handleElementRotate(value);
               }}
-              scale={element.scale}
-              rotation={element.rotation}
-              dimensions={{
-                x: element.type === "Circle" ? -element.width / 2 : 0,
-                y: element.type === "Circle" ? -element.height / 2 : 0,
-                width: element.width,
-                height: element.height,
+              value={radiansToDegrees(
+                decomposeRotationRadians(selectedElement.matrix.value)
+              )}
+              onTouchStart={() => setOrigin(selectedElement.matrix.value)}
+            />
+            <RNText>
+              Scale: {decomposeScale(selectedElement.matrix.value)}
+            </RNText>
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={0}
+              maximumValue={2}
+              minimumTrackTintColor="lightgrey"
+              maximumTrackTintColor="black"
+              value={decomposeScale(selectedElement.matrix.value)}
+              onValueChange={(value) => {
+                handleElementScale(value);
+              }}
+              onTouchStart={() => {
+                setOrigin(selectedElement.matrix.value);
               }}
             />
-          ))}
-        </Animated.View>
+            <Button
+              title="Delete"
+              onPress={() => removeElement(selectedElement.id)}
+            />
+          </Animated.View>
+        )}
       </View>
     </GestureDetector>
   );
+
+  function handleAddElement(type: ElementProps["type"]) {
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+
+    const width = 100;
+    const height = 100;
+
+    const x = 100;
+    const y = 100;
+
+    const matrix = Skia.Matrix();
+
+    matrix.translate(x, y);
+
+    addElement({
+      id: cuid(),
+      type,
+      size: { width, height },
+      matrix: makeMutable(matrix),
+      color: randomColor,
+    });
+  }
+
+  function handleElementRotate(deg: number) {
+    if (!selectedElement || !origin) return;
+
+    // This is only needed since we are rotating from a slider which should not rotate on top of the current rotation
+    // but instead rotate from the original rotation
+    const currentRotationRadians = decomposeRotationRadians(origin);
+    const newRotationDeg = deg - radiansToDegrees(currentRotationRadians);
+    const radians = degreesToRadians(newRotationDeg);
+
+    selectedElement.matrix.value = rotate(origin, radians, {
+      x: selectedElement.size.width / 2,
+      y: selectedElement.size.height / 2,
+    });
+  }
+
+  function handleElementScale(factor: number) {
+    if (!selectedElement || !origin) return;
+
+    // Currently we always scale from the center
+    const focus = {
+      x: selectedElement.size.width / 2,
+      y: selectedElement.size.height / 2,
+    };
+
+    // This is only needed since we are scaling from a slider which should not scale on top of the current scale
+    // but instead scale from the original scale
+    const currentScale = decomposeScale(origin);
+    const newScale = factor / currentScale;
+    if (newScale === 0) return;
+
+    selectedElement.matrix.value = scale(origin, newScale, focus);
+  }
 };
