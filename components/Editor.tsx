@@ -1,5 +1,5 @@
 import React from "react";
-import { SkMatrix, Skia } from "@shopify/react-native-skia";
+import { MatrixIndex, SkMatrix, Skia } from "@shopify/react-native-skia";
 import { StyleSheet, View, Text as RNText, Button } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
   makeMutable,
   runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 import Slider from "@react-native-community/slider";
@@ -43,9 +44,29 @@ const styles = StyleSheet.create({
 });
 
 export const Editor = () => {
+  const [selectedElementScale, setSelectedElementScale] =
+    React.useState<number>(1);
+  const [selectedElementRotation, setSelectedElementRotation] =
+    React.useState<number>(0);
+
   const { addElement, selectElement, selectedElement, removeElement } =
     useElementContext();
   const [origin, setOrigin] = React.useState<SkMatrix | null>(null);
+
+  useDerivedValue(() => {
+    if (selectedElement) {
+      runOnJS(updateState)();
+    }
+  });
+
+  function updateState() {
+    if (selectedElement) {
+      setSelectedElementScale(decomposeScale(selectedElement.matrix.value));
+      setSelectedElementRotation(
+        radiansToDegrees(decomposeRotationRadians(selectedElement.matrix.value))
+      );
+    }
+  }
 
   const canvasTranslateX = useSharedValue(-70);
   const canvasTranslateY = useSharedValue(0);
@@ -105,13 +126,7 @@ export const Editor = () => {
             exiting={SlideOutRight}
             style={[styles.menu]}
           >
-            <RNText>
-              Rotation:{" "}
-              {radiansToDegrees(
-                decomposeRotationRadians(selectedElement.matrix.value)
-              )}
-              °
-            </RNText>
+            <RNText>Rotation: {selectedElementRotation}°</RNText>
             <Slider
               style={{ width: "100%", height: 40 }}
               minimumValue={0}
@@ -126,9 +141,7 @@ export const Editor = () => {
               )}
               onTouchStart={() => setOrigin(selectedElement.matrix.value)}
             />
-            <RNText>
-              Scale: {decomposeScale(selectedElement.matrix.value)}
-            </RNText>
+            <RNText>Scale: {selectedElementScale.toFixed(2)}</RNText>
             <Slider
               style={{ width: "100%", height: 40 }}
               minimumValue={0}
