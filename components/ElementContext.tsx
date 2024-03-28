@@ -59,7 +59,6 @@ type ElementAction =
     };
 
 const elementReducer = (elements: ElementProps[], action: ElementAction) => {
-  console.log("action", action);
   switch (action.type) {
     case "add":
       return [...elements, action.element];
@@ -139,7 +138,7 @@ export const ElementProvider = ({ children }: ElementProviderProps) => {
       size: { width: 150, height: 0 },
       matrix: makeMutable(Skia.Matrix().translate(100, 100)),
       color: "blue",
-      content: "This is a sample paragraph. Use it to add",
+      content: "This is a sample paragraph. Use it to add anything you like",
     },
   ]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(

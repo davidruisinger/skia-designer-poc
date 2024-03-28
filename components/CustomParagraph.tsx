@@ -48,8 +48,6 @@ export const CustomParagraph = ({
 
   const height = paragraph?.getHeight() ?? 0;
 
-  console.log(height);
-
   useEffect(() => {
     update({ size: { width, height } });
   }, [height]);
