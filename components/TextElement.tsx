@@ -5,20 +5,22 @@ import {
   useFonts,
   TextAlign,
 } from "@shopify/react-native-skia";
-import { TextElement } from "./ElementContext";
+import { type TextElement as TextElementType } from "./ElementContext";
 
 interface CustomParagraphProps {
   color?: string;
   text: string;
   width: number;
-  update: (element: Partial<TextElement>) => void;
+  update: (element: Partial<TextElementType>) => void;
+  fontSize: number;
 }
 
-export const CustomParagraph = ({
+export const TextElement = ({
   update,
   color,
   text,
   width,
+  fontSize,
 }: CustomParagraphProps) => {
   const customFontMgr = useFonts({
     SFMono: [require("../assets/fonts/SF-Mono-Medium.otf")],
@@ -34,7 +36,7 @@ export const CustomParagraph = ({
     const textStyle = {
       color: Skia.Color(color ?? "#000000"),
       fontFamilies: ["SFMono"],
-      fontSize: 30,
+      fontSize,
     };
     const para = Skia.ParagraphBuilder.Make(paragraphStyle, customFontMgr)
       .pushStyle(textStyle)

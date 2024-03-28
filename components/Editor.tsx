@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import {
   CircleElement,
+  FreeLineTextElement,
   RectElement,
   TextElement,
   useElementContext,
@@ -17,15 +18,19 @@ import {
 import cuid from "cuid";
 import { ArtBoard } from "./ArtBoard";
 import { RightPanel } from "./RightPanel";
-import { getRandomColor } from "@/utils/elements";
+import {
+  getBoundingBoxFromPoints,
+  getFreeLineTextPoints,
+  getRandomColor,
+} from "@/utils/elements";
 
 export const Editor = () => {
   const { addElement, selectElement, removeElement } = useElementContext();
 
-  const canvasTranslateX = useSharedValue(-70);
-  const canvasTranslateY = useSharedValue(0);
-  const canvasScale = useSharedValue(0.7);
-  const savedScale = useSharedValue(0.7);
+  const canvasTranslateX = useSharedValue(-110);
+  const canvasTranslateY = useSharedValue(-100);
+  const canvasScale = useSharedValue(0.6);
+  const savedScale = useSharedValue(0.6);
 
   const tap = Gesture.Tap().onStart(() => {
     runOnJS(selectElement)(null);
@@ -88,6 +93,23 @@ export const Editor = () => {
                 content: "Add text here...",
                 size: { width: 160, height: 0 },
                 color: getRandomColor(),
+                fontSize: 32,
+              })
+            }
+          />
+          <Button
+            title="Add Free Line Text"
+            onPress={() =>
+              handleAddElement({
+                type: "FreeLineText",
+                content: "Add text here...",
+                size: getBoundingBoxFromPoints(getFreeLineTextPoints(), 20),
+                color: getRandomColor(),
+                points: getFreeLineTextPoints().map((point) => ({
+                  x: makeMutable(point.x),
+                  y: makeMutable(point.y),
+                })),
+                fontSize: 72,
               })
             }
           />
@@ -105,6 +127,7 @@ export const Editor = () => {
       | Omit<TextElement, "matrix" | "id">
       | Omit<RectElement, "matrix" | "id">
       | Omit<CircleElement, "matrix" | "id">
+      | Omit<FreeLineTextElement, "matrix" | "id">
   ) {
     const x = 100;
     const y = 100;

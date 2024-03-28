@@ -112,17 +112,18 @@ export const RightPanel = () => {
           }}
         />
 
-        {selectedElement.type === "Text" && (
-          <TextInput
-            editable
-            multiline
-            onChangeText={(text) =>
-              updateElement(selectedElement.id, { content: text })
-            }
-            value={selectedElement.content}
-            style={styles.textInput}
-          />
-        )}
+        {selectedElement.type === "Text" ||
+          (selectedElement.type === "FreeLineText" && (
+            <TextInput
+              editable
+              multiline
+              onChangeText={(text) =>
+                updateElement(selectedElement.id, { content: text })
+              }
+              value={selectedElement.content}
+              style={styles.textInput}
+            />
+          ))}
 
         <Button
           title="Delete"

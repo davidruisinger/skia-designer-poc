@@ -6,9 +6,10 @@ import { Element } from "./Element";
 
 import { GestureHandler } from "./GestureHandler";
 import { SharedValue } from "react-native-reanimated";
+import { PathTransformHandler } from "./PathTransformHandler";
 
-export const DEFAULT_WIDTH = 1024;
-export const DEFAULT_HEIGHT = 1024;
+export const DEFAULT_WIDTH = 1200;
+export const DEFAULT_HEIGHT = 1200;
 
 interface ArtBoardProps {
   canvasScale: SharedValue<number>;
@@ -31,11 +32,20 @@ export const ArtBoard = ({ canvasScale }: ArtBoardProps) => {
         ))}
       </Canvas>
       {elements.map((element) => (
-        <GestureHandler
-          key={element.id}
-          element={element}
-          canvasScale={canvasScale}
-        />
+        <>
+          <GestureHandler
+            key={element.id}
+            element={element}
+            canvasScale={canvasScale}
+          >
+            {element.type === "FreeLineText" ? (
+              <PathTransformHandler
+                points={element.points}
+                canvasScale={canvasScale}
+              />
+            ) : null}
+          </GestureHandler>
+        </>
       ))}
     </>
   );

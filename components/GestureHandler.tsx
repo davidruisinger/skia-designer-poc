@@ -11,6 +11,7 @@ import { toCSSMatrix, translate } from "../utils/matrix";
 interface GestureHandlerProps {
   element: ElementProps;
   canvasScale: SharedValue<number>;
+  children?: React.ReactNode;
 }
 
 const OUTLINE_WIDTH = 3;
@@ -18,6 +19,7 @@ const OUTLINE_WIDTH = 3;
 export const GestureHandler = ({
   element,
   canvasScale,
+  children,
 }: GestureHandlerProps) => {
   const { selectElement, selectedElement } = useElementContext();
 
@@ -69,7 +71,7 @@ export const GestureHandler = ({
 
   return (
     <GestureDetector gesture={Gesture.Race(tap, pan)}>
-      <Animated.View style={animatedStyle} />
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
     </GestureDetector>
   );
 };

@@ -1,6 +1,7 @@
 import { Group, Circle, Rect } from "@shopify/react-native-skia";
 import { ElementProps } from "./ElementContext";
-import { CustomParagraph } from "./CustomParagraph";
+import { TextElement } from "./TextElement";
+import { FreeLineText } from "./FreeLineText";
 
 export const Element = ({
   element,
@@ -25,10 +26,18 @@ export const Element = ({
           color={element.color}
         />
       ) : element.type === "Text" ? (
-        <CustomParagraph
-          update={(updatedElement) => update(element.id, updatedElement)}
+        <TextElement
           width={element.size.width}
+          update={(updatedElement) => update(element.id, updatedElement)}
           text={element.content}
+          color={element.color}
+          fontSize={element.fontSize}
+        />
+      ) : element.type === "FreeLineText" ? (
+        <FreeLineText
+          text={element.content}
+          points={element.points}
+          fontSize={element.fontSize}
         />
       ) : null}
     </Group>

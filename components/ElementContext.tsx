@@ -1,3 +1,7 @@
+import {
+  getBoundingBoxFromPoints,
+  getFreeLineTextPoints,
+} from "@/utils/elements";
 import { Skia, type SkMatrix, type SkSize } from "@shopify/react-native-skia";
 import {
   createContext,
@@ -10,6 +14,11 @@ import {
 import type { ReactNode } from "react";
 import { makeMutable, type SharedValue } from "react-native-reanimated";
 
+export interface PathPoint {
+  x: SharedValue<number>;
+  y: SharedValue<number>;
+}
+
 export interface BaseElement {
   id: string;
   matrix: SharedValue<SkMatrix>;
@@ -20,6 +29,15 @@ export interface TextElement extends BaseElement {
   type: "Text";
   content: string;
   color: string;
+  fontSize: number;
+}
+
+export interface FreeLineTextElement extends BaseElement {
+  type: "FreeLineText";
+  content: string;
+  color: string;
+  points: PathPoint[];
+  fontSize: number;
 }
 
 export interface RectElement extends BaseElement {
@@ -32,7 +50,11 @@ export interface CircleElement extends BaseElement {
   color: string;
 }
 
-export type ElementProps = TextElement | RectElement | CircleElement;
+export type ElementProps =
+  | TextElement
+  | FreeLineTextElement
+  | RectElement
+  | CircleElement;
 
 interface ElementContext {
   elements: ElementProps[];
@@ -134,15 +156,20 @@ export const ElementProvider = ({ children }: ElementProviderProps) => {
   const [elements, dispatch] = useReducer(elementReducer, [
     {
       id: "1",
-      type: "Text",
-      size: { width: 150, height: 0 },
+      type: "FreeLineText",
+      size: getBoundingBoxFromPoints(getFreeLineTextPoints(), 72),
       matrix: makeMutable(Skia.Matrix().translate(100, 100)),
       color: "blue",
       content: "This is a sample paragraph. Use it to add anything you like",
+      points: getFreeLineTextPoints().map((point) => ({
+        x: makeMutable(point.x),
+        y: makeMutable(point.y),
+      })),
+      fontSize: 72,
     },
   ]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(
-    "1"
+    null
   );
 
   return (
