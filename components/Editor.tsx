@@ -1,5 +1,5 @@
 import React from "react";
-import { MatrixIndex, SkMatrix, Skia } from "@shopify/react-native-skia";
+import { SkMatrix, Skia } from "@shopify/react-native-skia";
 import { StyleSheet, View, Text as RNText, Button } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
