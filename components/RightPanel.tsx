@@ -35,6 +35,19 @@ const styles = StyleSheet.create({
     },
     padding: 10,
   },
+  textInput: {
+    padding: 10,
+    borderColor: "black",
+    borderWidth: 1,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  slider: {
+    width: "100%",
+    height: 40,
+    marginTop: 10,
+    marginBottom: 10,
+  },
 });
 
 export const RightPanel = () => {
@@ -43,7 +56,7 @@ export const RightPanel = () => {
   const [selectedElementRotation, setSelectedElementRotation] =
     React.useState<number>(0);
 
-  const { selectedElement, removeElement } = useElementContext();
+  const { selectedElement, updateElement, removeElement } = useElementContext();
   const [origin, setOrigin] = React.useState<SkMatrix | null>(null);
 
   useDerivedValue(() => {
@@ -70,7 +83,7 @@ export const RightPanel = () => {
       >
         <Text>Rotation: {Math.floor(selectedElementRotation)}°</Text>
         <Slider
-          style={{ width: "100%", height: 40 }}
+          style={styles.slider}
           minimumValue={0}
           maximumValue={360}
           minimumTrackTintColor="lightgrey"
@@ -85,7 +98,7 @@ export const RightPanel = () => {
         />
         <Text>Scale: {selectedElementScale.toFixed(2)}</Text>
         <Slider
-          style={{ width: "100%", height: 40 }}
+          style={styles.slider}
           minimumValue={0}
           maximumValue={2}
           minimumTrackTintColor="lightgrey"
@@ -105,9 +118,11 @@ export const RightPanel = () => {
             multiline
             numberOfLines={4}
             maxLength={40}
-            //  onChangeText={text => onChangeText(text)}
+            onChangeText={(text) =>
+              updateElement(selectedElement.id, { content: text })
+            }
             value={selectedElement.content}
-            style={{ padding: 10 }}
+            style={styles.textInput}
           />
         )}
 

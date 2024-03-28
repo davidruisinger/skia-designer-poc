@@ -51,14 +51,30 @@ type ElementAction =
   | {
       type: "remove";
       id: string;
+    }
+  | {
+      type: "update";
+      id: string;
+      element: Partial<ElementProps>;
     };
 
 const elementReducer = (elements: ElementProps[], action: ElementAction) => {
   switch (action.type) {
     case "add":
       return [...elements, action.element];
+    case "update":
+      return elements.map((element) =>
+        element.id === action.id
+          ? ({
+              ...element,
+              ...action.element,
+            } as ElementProps)
+          : element
+      );
     case "remove":
       return elements.filter((element) => element.id !== action.id);
+    default:
+      return elements;
   }
 };
 
@@ -71,6 +87,13 @@ export const useElementContext = () => {
   const addElement = useCallback(
     (element: ElementProps) => {
       dispatch({ type: "add", element });
+    },
+    [dispatch]
+  );
+
+  const updateElement = useCallback(
+    (id: string, element: Partial<ElementProps>) => {
+      dispatch({ type: "update", id, element });
     },
     [dispatch]
   );
@@ -97,6 +120,7 @@ export const useElementContext = () => {
     elements,
     selectedElement,
     addElement,
+    updateElement,
     removeElement,
     selectElement,
   };
