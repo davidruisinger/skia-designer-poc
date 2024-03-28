@@ -8,10 +8,16 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { ElementProps, useElementContext } from "./ElementContext";
+import {
+  CircleElement,
+  RectElement,
+  TextElement,
+  useElementContext,
+} from "./ElementContext";
 import cuid from "cuid";
 import { ArtBoard } from "./ArtBoard";
 import { RightPanel } from "./RightPanel";
+import { getRandomColor } from "@/utils/elements";
 
 export const Editor = () => {
   const { addElement, selectElement, removeElement } = useElementContext();
@@ -54,15 +60,36 @@ export const Editor = () => {
     <GestureDetector gesture={Gesture.Race(pinch, pan, tap)}>
       <View style={{ flex: 1, backgroundColor: "lightgrey" }}>
         <View style={{ flexDirection: "row", justifyContent: "center" }}>
-          <Button title="Add Rect" onPress={() => handleAddElement("Rect")} />
+          <Button
+            title="Add Rect"
+            onPress={() =>
+              handleAddElement({
+                type: "Rect",
+                color: getRandomColor(),
+                size: { width: 100, height: 100 },
+              })
+            }
+          />
           <Button
             title="Add Circle"
-            onPress={() => handleAddElement("Circle")}
+            onPress={() =>
+              handleAddElement({
+                type: "Circle",
+                color: getRandomColor(),
+                size: { width: 100, height: 100 },
+              })
+            }
           />
-          <Button title="Add Text" onPress={() => handleAddElement("Text")} />
           <Button
-            title="Add TextPath"
-            onPress={() => handleAddElement("TextPath")}
+            title="Add Text"
+            onPress={() =>
+              handleAddElement({
+                type: "Text",
+                content: "Add text here...",
+                size: { width: 160, height: 0 },
+                color: getRandomColor(),
+              })
+            }
           />
         </View>
         <Animated.View style={[animatedCanvasStyle]}>
@@ -73,25 +100,22 @@ export const Editor = () => {
     </GestureDetector>
   );
 
-  function handleAddElement(type: ElementProps["type"]) {
-    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-
-    const width = 100;
-    const height = 100;
-
+  function handleAddElement(
+    element:
+      | Omit<TextElement, "matrix" | "id">
+      | Omit<RectElement, "matrix" | "id">
+      | Omit<CircleElement, "matrix" | "id">
+  ) {
     const x = 100;
     const y = 100;
 
     const matrix = Skia.Matrix();
-
     matrix.translate(x, y);
 
     addElement({
+      ...element,
       id: cuid(),
-      type,
-      size: { width, height },
       matrix: makeMutable(matrix),
-      color: randomColor,
     });
   }
 };

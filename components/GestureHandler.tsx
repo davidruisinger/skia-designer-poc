@@ -6,7 +6,7 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { ElementProps, useElementContext } from "./ElementContext";
-import { toCSSMatrix, translate } from "./MatrixHelpers";
+import { toCSSMatrix, translate } from "../utils/matrix";
 
 interface GestureHandlerProps {
   element: ElementProps;

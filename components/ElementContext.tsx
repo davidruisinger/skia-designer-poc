@@ -10,13 +10,29 @@ import {
 import type { ReactNode } from "react";
 import { makeMutable, type SharedValue } from "react-native-reanimated";
 
-export interface ElementProps {
+export interface BaseElement {
   id: string;
-  type: "Rect" | "Circle" | "Text" | "TextPath";
-  size: SkSize;
   matrix: SharedValue<SkMatrix>;
+  size: SkSize;
+}
+
+export interface TextElement extends BaseElement {
+  type: "Text";
+  content: string;
   color: string;
 }
+
+export interface RectElement extends BaseElement {
+  type: "Rect";
+  color: string;
+}
+
+export interface CircleElement extends BaseElement {
+  type: "Circle";
+  color: string;
+}
+
+export type ElementProps = TextElement | RectElement | CircleElement;
 
 interface ElementContext {
   elements: ElementProps[];
@@ -94,10 +110,11 @@ export const ElementProvider = ({ children }: ElementProviderProps) => {
   const [elements, dispatch] = useReducer(elementReducer, [
     {
       id: "1",
-      type: "Rect",
-      size: { width: 100, height: 100 },
+      type: "Text",
+      size: { width: 150, height: 0 },
       matrix: makeMutable(Skia.Matrix().translate(100, 100)),
-      color: "red",
+      color: "blue",
+      content: "This is a sample paragraph. Use it to add",
     },
   ]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(

@@ -1,6 +1,6 @@
 import React from "react";
 import { SkMatrix } from "@shopify/react-native-skia";
-import { StyleSheet, Text as RNText, Button } from "react-native";
+import { StyleSheet, Text, Button, TextInput } from "react-native";
 import Animated, {
   SlideInRight,
   SlideOutRight,
@@ -16,7 +16,7 @@ import {
   radiansToDegrees,
   rotate,
   scale,
-} from "./MatrixHelpers";
+} from "../utils/matrix";
 
 const styles = StyleSheet.create({
   menu: {
@@ -68,7 +68,7 @@ export const RightPanel = () => {
         exiting={SlideOutRight}
         style={[styles.menu]}
       >
-        <RNText>Rotation: {Math.floor(selectedElementRotation)}°</RNText>
+        <Text>Rotation: {Math.floor(selectedElementRotation)}°</Text>
         <Slider
           style={{ width: "100%", height: 40 }}
           minimumValue={0}
@@ -83,7 +83,7 @@ export const RightPanel = () => {
           )}
           onTouchStart={() => setOrigin(selectedElement.matrix.value)}
         />
-        <RNText>Scale: {selectedElementScale.toFixed(2)}</RNText>
+        <Text>Scale: {selectedElementScale.toFixed(2)}</Text>
         <Slider
           style={{ width: "100%", height: 40 }}
           minimumValue={0}
@@ -98,6 +98,19 @@ export const RightPanel = () => {
             setOrigin(selectedElement.matrix.value);
           }}
         />
+
+        {selectedElement.type === "Text" && (
+          <TextInput
+            editable
+            multiline
+            numberOfLines={4}
+            maxLength={40}
+            //  onChangeText={text => onChangeText(text)}
+            value={selectedElement.content}
+            style={{ padding: 10 }}
+          />
+        )}
+
         <Button
           title="Delete"
           onPress={() => removeElement(selectedElement.id)}

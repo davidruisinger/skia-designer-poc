@@ -13,31 +13,31 @@ export enum MatrixIndex {
   Persp2 = 8,
 }
 
-export const scale = (matrix: SkMatrix, scale: number, origin: Vector) => {
+export function scale(matrix: SkMatrix, scale: number, origin: Vector) {
   "worklet";
   const source = Skia.Matrix(matrix.get());
   source.translate(origin.x, origin.y);
   source.scale(scale, scale);
   source.translate(-origin.x, -origin.y);
   return source;
-};
+}
 
-export const rotate = (matrix: SkMatrix, radians: number, origin: Vector) => {
+export function rotate(matrix: SkMatrix, radians: number, origin: Vector) {
   "worklet";
   const source = Skia.Matrix(matrix.get());
   source.translate(origin.x, origin.y);
   source.rotate(radians);
   source.translate(-origin.x, -origin.y);
   return source;
-};
+}
 
-export const translate = (matrix: SkMatrix, x: number, y: number) => {
+export function translate(matrix: SkMatrix, x: number, y: number) {
   "worklet";
   const m = Skia.Matrix();
   m.translate(x, y);
   m.concat(matrix);
   return m;
-};
+}
 
 /**
  * Transforms a SkMatrix into a CSS 4x4 matrix
@@ -50,7 +50,7 @@ export const translate = (matrix: SkMatrix, x: number, y: number) => {
  * CSS Matrix: │ SkewX   ScaleY  TransY │ => [ScaleX, SkewX, Persp0, 0, SkewY, ScaleY, Persp1, 0, 0, 0, 1, 0, 1, TransX, TransY, Persp2]
  *             │ Persp0  Persp1  Persp2 │
  */
-export const toCSSMatrix = (skMatrix: SkMatrix) => {
+export function toCSSMatrix(skMatrix: SkMatrix) {
   "worklet";
   const values = skMatrix.get();
   return [
@@ -71,7 +71,7 @@ export const toCSSMatrix = (skMatrix: SkMatrix) => {
     values[MatrixIndex.Persp2],
     1,
   ];
-};
+}
 
 export function decomposeRotationRadians(matrix: SkMatrix) {
   const matrixValues = matrix.get();
