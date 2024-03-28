@@ -116,8 +116,6 @@ export const RightPanel = () => {
           <TextInput
             editable
             multiline
-            numberOfLines={4}
-            maxLength={40}
             onChangeText={(text) =>
               updateElement(selectedElement.id, { content: text })
             }

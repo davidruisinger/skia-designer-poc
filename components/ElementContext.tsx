@@ -59,6 +59,7 @@ type ElementAction =
     };
 
 const elementReducer = (elements: ElementProps[], action: ElementAction) => {
+  console.log("action", action);
   switch (action.type) {
     case "add":
       return [...elements, action.element];

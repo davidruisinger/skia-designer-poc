@@ -4,7 +4,6 @@ import { Canvas, useFont } from "@shopify/react-native-skia";
 import { useElementContext } from "./ElementContext";
 import { Element } from "./Element";
 
-import sfMono from "../assets/fonts/SF-Mono-Medium.otf";
 import { GestureHandler } from "./GestureHandler";
 import { SharedValue } from "react-native-reanimated";
 
@@ -16,9 +15,7 @@ interface ArtBoardProps {
 }
 
 export const ArtBoard = ({ canvasScale }: ArtBoardProps) => {
-  const { elements } = useElementContext();
-
-  const font = useFont(sfMono, 32);
+  const { elements, updateElement } = useElementContext();
 
   return (
     <>
@@ -30,7 +27,7 @@ export const ArtBoard = ({ canvasScale }: ArtBoardProps) => {
         }}
       >
         {elements.map((element) => (
-          <Element key={element.id} element={element} font={font} />
+          <Element key={element.id} element={element} update={updateElement} />
         ))}
       </Canvas>
       {elements.map((element) => (

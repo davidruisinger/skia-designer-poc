@@ -1,21 +1,13 @@
-import {
-  Group,
-  Circle,
-  TextPath,
-  Rect,
-  SkFont,
-  rect,
-  Skia,
-} from "@shopify/react-native-skia";
+import { Group, Circle, Rect } from "@shopify/react-native-skia";
 import { ElementProps } from "./ElementContext";
 import { CustomParagraph } from "./CustomParagraph";
 
 export const Element = ({
   element,
-  font,
+  update,
 }: {
+  update: (id: string, element: Partial<ElementProps>) => void;
   element: ElementProps;
-  font: SkFont | null;
 }) => {
   return (
     <Group key={element.id} matrix={element.matrix}>
@@ -33,7 +25,11 @@ export const Element = ({
           color={element.color}
         />
       ) : element.type === "Text" ? (
-        <CustomParagraph width={element.size.width} text={element.content} />
+        <CustomParagraph
+          update={(updatedElement) => update(element.id, updatedElement)}
+          width={element.size.width}
+          text={element.content}
+        />
       ) : null}
     </Group>
   );
