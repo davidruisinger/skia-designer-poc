@@ -6,7 +6,8 @@ import { Element } from "./Element";
 
 import { GestureHandler } from "./GestureHandler";
 import { SharedValue } from "react-native-reanimated";
-import { PathTransformHandler } from "./PathTransformHandler";
+import { FreePathTransformHandler } from "./FreePathTransformHandler";
+import { CirclePathTransformHandler } from "./CirclePathTransformHandler";
 
 export const DEFAULT_WIDTH = 1200;
 export const DEFAULT_HEIGHT = 1200;
@@ -32,20 +33,25 @@ export const ArtBoard = ({ canvasScale }: ArtBoardProps) => {
         ))}
       </Canvas>
       {elements.map((element) => (
-        <>
-          <GestureHandler
-            key={element.id}
-            element={element}
-            canvasScale={canvasScale}
-          >
-            {element.type === "FreeLineText" ? (
-              <PathTransformHandler
-                points={element.points}
-                canvasScale={canvasScale}
-              />
-            ) : null}
-          </GestureHandler>
-        </>
+        <GestureHandler
+          key={element.id}
+          element={element}
+          canvasScale={canvasScale}
+        >
+          {element.type === "FreeLineText" ? (
+            <FreePathTransformHandler
+              points={element.points}
+              canvasScale={canvasScale}
+            />
+          ) : null}
+          {element.type === "CircleText" ? (
+            <CirclePathTransformHandler
+              width={element.size.width}
+              height={element.size.height}
+              canvasScale={canvasScale}
+            />
+          ) : null}
+        </GestureHandler>
       ))}
     </>
   );

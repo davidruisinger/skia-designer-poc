@@ -22,7 +22,10 @@ export interface PathPoint {
 export interface BaseElement {
   id: string;
   matrix: SharedValue<SkMatrix>;
-  size: SkSize;
+  size: {
+    width: SharedValue<number>;
+    height: SharedValue<number>;
+  };
 }
 
 export interface TextElement extends BaseElement {
@@ -40,6 +43,13 @@ export interface FreeLineTextElement extends BaseElement {
   fontSize: number;
 }
 
+export interface CircleTextElement extends BaseElement {
+  type: "CircleText";
+  content: string;
+  color: string;
+  fontSize: number;
+}
+
 export interface RectElement extends BaseElement {
   type: "Rect";
   color: string;
@@ -53,6 +63,7 @@ export interface CircleElement extends BaseElement {
 export type ElementProps =
   | TextElement
   | FreeLineTextElement
+  | CircleTextElement
   | RectElement
   | CircleElement;
 
@@ -156,16 +167,15 @@ export const ElementProvider = ({ children }: ElementProviderProps) => {
   const [elements, dispatch] = useReducer(elementReducer, [
     {
       id: "1",
-      type: "FreeLineText",
-      size: getBoundingBoxFromPoints(getFreeLineTextPoints(), 72),
+      type: "CircleText",
       matrix: makeMutable(Skia.Matrix().translate(100, 100)),
       color: "blue",
       content: "This is a sample paragraph. Use it to add anything you like",
-      points: getFreeLineTextPoints().map((point) => ({
-        x: makeMutable(point.x),
-        y: makeMutable(point.y),
-      })),
       fontSize: 72,
+      size: {
+        width: makeMutable(200),
+        height: makeMutable(200),
+      },
     },
   ]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(

@@ -112,18 +112,19 @@ export const RightPanel = () => {
           }}
         />
 
-        {selectedElement.type === "Text" ||
-          (selectedElement.type === "FreeLineText" && (
-            <TextInput
-              editable
-              multiline
-              onChangeText={(text) =>
-                updateElement(selectedElement.id, { content: text })
-              }
-              value={selectedElement.content}
-              style={styles.textInput}
-            />
-          ))}
+        {(selectedElement.type === "Text" ||
+          selectedElement.type === "CircleText" ||
+          selectedElement.type === "FreeLineText") && (
+          <TextInput
+            editable
+            multiline
+            onChangeText={(text) =>
+              updateElement(selectedElement.id, { content: text })
+            }
+            value={selectedElement.content}
+            style={styles.textInput}
+          />
+        )}
 
         <Button
           title="Delete"
@@ -143,8 +144,8 @@ export const RightPanel = () => {
     const radians = degreesToRadians(newRotationDeg);
 
     selectedElement.matrix.value = rotate(origin, radians, {
-      x: selectedElement.size.width / 2,
-      y: selectedElement.size.height / 2,
+      x: selectedElement.size.width.value / 2,
+      y: selectedElement.size.height.value / 2,
     });
   }
 
@@ -153,8 +154,8 @@ export const RightPanel = () => {
 
     // Currently we always scale from the center
     const focus = {
-      x: selectedElement.size.width / 2,
-      y: selectedElement.size.height / 2,
+      x: selectedElement.size.width.value / 2,
+      y: selectedElement.size.height.value / 2,
     };
 
     // This is only needed since we are scaling from a slider which should not scale on top of the current scale

@@ -43,8 +43,8 @@ export const GestureHandler = ({
 
   const animatedStyle = useAnimatedStyle(() => ({
     position: "absolute",
-    width: element.size.width + OUTLINE_WIDTH * 4,
-    height: element.size.height + OUTLINE_WIDTH * 4,
+    width: element.size.width.value + OUTLINE_WIDTH * 4,
+    height: element.size.height.value + OUTLINE_WIDTH * 4,
     top: -OUTLINE_WIDTH * 2,
     left: -OUTLINE_WIDTH * 2,
     borderWidth: OUTLINE_WIDTH,
@@ -53,18 +53,18 @@ export const GestureHandler = ({
       // NOTE: This is a workaround to make the element transform around its center (as Skia does)
       // instead of the top-left corner (as React Native does).
       {
-        translateX: -element.size.width / 2,
+        translateX: -element.size.width.value / 2,
       },
       {
-        translateY: -element.size.height / 2,
+        translateY: -element.size.height.value / 2,
       },
       { matrix: toCSSMatrix(element.matrix.value) },
       // Reset the translation to the top-left corner
       {
-        translateX: element.size.width / 2,
+        translateX: element.size.width.value / 2,
       },
       {
-        translateY: element.size.height / 2,
+        translateY: element.size.height.value / 2,
       },
     ],
   }));

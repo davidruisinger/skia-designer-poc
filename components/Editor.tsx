@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import {
   CircleElement,
+  CircleTextElement,
   FreeLineTextElement,
   RectElement,
   TextElement,
@@ -71,7 +72,7 @@ export const Editor = () => {
               handleAddElement({
                 type: "Rect",
                 color: getRandomColor(),
-                size: { width: 100, height: 100 },
+                size: { width: makeMutable(100), height: makeMutable(100) },
               })
             }
           />
@@ -81,7 +82,7 @@ export const Editor = () => {
               handleAddElement({
                 type: "Circle",
                 color: getRandomColor(),
-                size: { width: 100, height: 100 },
+                size: { width: makeMutable(100), height: makeMutable(100) },
               })
             }
           />
@@ -91,7 +92,7 @@ export const Editor = () => {
               handleAddElement({
                 type: "Text",
                 content: "Add text here...",
-                size: { width: 160, height: 0 },
+                size: { width: makeMutable(160), height: makeMutable(0) },
                 color: getRandomColor(),
                 fontSize: 32,
               })
@@ -103,12 +104,34 @@ export const Editor = () => {
               handleAddElement({
                 type: "FreeLineText",
                 content: "Add text here...",
-                size: getBoundingBoxFromPoints(getFreeLineTextPoints(), 20),
+                size: {
+                  width: makeMutable(
+                    getBoundingBoxFromPoints(getFreeLineTextPoints()).width
+                  ),
+                  height: makeMutable(
+                    getBoundingBoxFromPoints(getFreeLineTextPoints()).height
+                  ),
+                },
                 color: getRandomColor(),
                 points: getFreeLineTextPoints().map((point) => ({
                   x: makeMutable(point.x),
                   y: makeMutable(point.y),
                 })),
+                fontSize: 72,
+              })
+            }
+          />
+          <Button
+            title="Add Circle Text"
+            onPress={() =>
+              handleAddElement({
+                type: "CircleText",
+                content: "Add text here...",
+                size: {
+                  width: makeMutable(200),
+                  height: makeMutable(200),
+                },
+                color: getRandomColor(),
                 fontSize: 72,
               })
             }
@@ -128,6 +151,7 @@ export const Editor = () => {
       | Omit<RectElement, "matrix" | "id">
       | Omit<CircleElement, "matrix" | "id">
       | Omit<FreeLineTextElement, "matrix" | "id">
+      | Omit<CircleTextElement, "matrix" | "id">
   ) {
     const x = 100;
     const y = 100;

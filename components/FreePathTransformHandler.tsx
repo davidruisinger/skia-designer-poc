@@ -6,17 +6,17 @@ import Animated, {
 } from "react-native-reanimated";
 import { PathPoint } from "./ElementContext";
 
-interface PathTransformHandlerProps {
+interface FreePathTransformHandlerProps {
   points: PathPoint[];
   canvasScale: SharedValue<number>;
 }
 
 const SIZE = 30;
 
-export const PathTransformHandler = ({
+export const FreePathTransformHandler = ({
   canvasScale,
   points,
-}: PathTransformHandlerProps) => {
+}: FreePathTransformHandlerProps) => {
   return points.map((point, i) => (
     <PointGestureHandler key={i} canvasScale={canvasScale} point={point} />
   ));

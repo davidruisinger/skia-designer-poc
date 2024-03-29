@@ -6,22 +6,23 @@ import {
   TextAlign,
 } from "@shopify/react-native-skia";
 import { type TextElement as TextElementType } from "./ElementContext";
+import { SharedValue } from "react-native-reanimated";
 
-interface CustomParagraphProps {
+interface TextElementProps {
   color?: string;
   text: string;
-  width: number;
-  update: (element: Partial<TextElementType>) => void;
   fontSize: number;
+  width: SharedValue<number>;
+  height: SharedValue<number>;
 }
 
 export const TextElement = ({
-  update,
+  height,
   color,
   text,
   width,
   fontSize,
-}: CustomParagraphProps) => {
+}: TextElementProps) => {
   const customFontMgr = useFonts({
     SFMono: [require("../assets/fonts/SF-Mono-Medium.otf")],
   });
@@ -44,15 +45,11 @@ export const TextElement = ({
       .pop()
       .build();
 
-    para.layout(width);
+    para.layout(width.value);
     return para;
   }, [customFontMgr, text, width]);
 
-  const height = paragraph?.getHeight() ?? 0;
-
-  useEffect(() => {
-    update({ size: { width, height } });
-  }, [height]);
+  height.value = paragraph?.getHeight() ?? 0;
 
   // Render the paragraph
   return <Paragraph paragraph={paragraph} x={0} y={0} width={width} />;
