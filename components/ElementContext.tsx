@@ -50,6 +50,14 @@ export interface CircleTextElement extends BaseElement {
   fontSize: number;
 }
 
+export interface DistortTextElement extends BaseElement {
+  type: "DistortText";
+  content: string;
+  color: string;
+  fontSize: number;
+  points: PathPoint[];
+}
+
 export interface RectElement extends BaseElement {
   type: "Rect";
   color: string;
@@ -64,6 +72,7 @@ export type ElementProps =
   | TextElement
   | FreeLineTextElement
   | CircleTextElement
+  | DistortTextElement
   | RectElement
   | CircleElement;
 
@@ -167,15 +176,16 @@ export const ElementProvider = ({ children }: ElementProviderProps) => {
   const [elements, dispatch] = useReducer(elementReducer, [
     {
       id: "1",
-      type: "CircleText",
-      matrix: makeMutable(Skia.Matrix().translate(100, 100)),
+      type: "DistortText",
+      matrix: makeMutable(Skia.Matrix().translate(0, 0)),
       color: "blue",
       content: "This is a sample paragraph. Use it to add anything you like",
       fontSize: 72,
       size: {
-        width: makeMutable(200),
-        height: makeMutable(200),
+        width: makeMutable(280),
+        height: makeMutable(335),
       },
+      points: [],
     },
   ]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(

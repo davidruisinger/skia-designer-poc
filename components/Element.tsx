@@ -3,6 +3,7 @@ import { ElementProps } from "./ElementContext";
 import { TextElement } from "./TextElement";
 import { FreeLineText } from "./FreeLineText";
 import { CircleText } from "./CircleText";
+import { DistortText } from "./DistortText";
 
 export const Element = ({
   element,
@@ -46,6 +47,8 @@ export const Element = ({
           fontSize={element.fontSize}
           width={element.size.width}
         />
+      ) : element.type === "DistortText" ? (
+        <DistortText points={element.points} />
       ) : null}
     </Group>
   );

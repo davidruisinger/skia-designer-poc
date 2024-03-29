@@ -11,6 +11,7 @@ import Animated, {
 import {
   CircleElement,
   CircleTextElement,
+  DistortTextElement,
   FreeLineTextElement,
   RectElement,
   TextElement,
@@ -136,6 +137,22 @@ export const Editor = () => {
               })
             }
           />
+          <Button
+            title="Add Distort Text"
+            onPress={() =>
+              handleAddElement({
+                type: "DistortText",
+                content: "Add text here...",
+                size: {
+                  width: makeMutable(280),
+                  height: makeMutable(335),
+                },
+                color: getRandomColor(),
+                fontSize: 72,
+                points: [],
+              })
+            }
+          />
         </View>
         <Animated.View style={[animatedCanvasStyle]}>
           <ArtBoard canvasScale={canvasScale} />
@@ -152,6 +169,7 @@ export const Editor = () => {
       | Omit<CircleElement, "matrix" | "id">
       | Omit<FreeLineTextElement, "matrix" | "id">
       | Omit<CircleTextElement, "matrix" | "id">
+      | Omit<DistortTextElement, "matrix" | "id">
   ) {
     const x = 100;
     const y = 100;
