@@ -1,13 +1,9 @@
-import { useEffect, useMemo } from "react";
 import {
-  Skia,
   TextPath,
   useFont,
   Group,
   Path,
-  SkPath,
   usePathValue,
-  processTransform3d,
 } from "@shopify/react-native-skia";
 import { PathPoint } from "./ElementContext";
 
